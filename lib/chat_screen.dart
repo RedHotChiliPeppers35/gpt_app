@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/gpt.dart';
 
-class ChatScreen
-    extends StatefulWidget {
+bool isUser = true;
+
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
   @override
   State createState() => ChatScreenState();
 }
 
-class ChatScreenState
-    extends State<ChatScreen> {
-  final OpenAIGPTService gptService = OpenAIGPTService('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', "https://api.openai.com/v1/chat/completions");
+class ChatScreenState extends State<ChatScreen> {
+  final OpenAIGPTService gptService = OpenAIGPTService(
+      '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',
+      "https://api.openai.com/v1/chat/completions");
   final TextEditingController _textController = TextEditingController();
   final List<String> _messages = [];
 
@@ -26,6 +28,7 @@ class ChatScreenState
       String response = await gptService.generateResponse(text);
       setState(() {
         _messages.add('ChatGPT: $response');
+        isUser != isUser;
       });
     } catch (e) {
       setState(() {
@@ -53,12 +56,24 @@ class ChatScreenState
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_messages[index]),
-                );
+                    title: Flexible(
+                  child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Colors.red.shade300,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(_messages[index]),
+                          )
+                        ],
+                      )),
+                ));
               },
             ),
           ),
-          _buildTextComposer(),
+          TextInputArea(),
           Container(
             height: 10,
           )
@@ -67,25 +82,36 @@ class ChatScreenState
     );
   }
 
-  Widget _buildTextComposer() {
+  Widget TextInputArea() {
     return Container(
       height: MediaQuery.of(context).size.height * 0.08,
       width: MediaQuery.of(context).size.width * 0.9,
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(color: Colors.green.shade100, borderRadius: BorderRadius.circular(20)),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+          color: Colors.green.shade100,
+          borderRadius: BorderRadius.circular(20)),
       child: Row(
         children: [
           Flexible(
             child: TextField(
               controller: _textController,
               onSubmitted: _handleSubmitted,
-              decoration: const InputDecoration.collapsed(hintText: 'Send a message'),
+              decoration: const InputDecoration.collapsed(
+                  hintText: 'Send a message',
+                  hintStyle: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: () => _handleSubmitted(_textController.text),
-          ),
+              iconSize: MediaQuery.of(context).size.height * 0.03,
+              icon: const Icon(Icons.send),
+              onPressed: () {
+                setState(() {
+                  isUser = true;
+                });
+                if (_textController.text.isNotEmpty) {
+                  _handleSubmitted(_textController.text);
+                }
+              }),
         ],
       ),
     );

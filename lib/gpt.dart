@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart'
-    as http;
+import 'package:http/http.dart' as http;
 
 class OpenAIGPTService {
   final String apiKey;
@@ -17,17 +16,14 @@ class OpenAIGPTService {
       },
       body: jsonEncode({
         'messages': [
-          {
-            'role': 'user',
-            'content': prompt
-          }
+          {'role': 'user', 'content': prompt}
         ],
         "model": "gpt-3.5-turbo",
-        // Adjust as needed
       }),
     );
     if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
+      final responseBody = json.decode(utf8.decode(response.bodyBytes));
+
       final choices = responseBody['choices'] as List<dynamic>;
 
       if (choices.isNotEmpty) {
@@ -40,6 +36,7 @@ class OpenAIGPTService {
       }
     }
 
-    throw Exception('Failed to generate response: ${response.statusCode} \n${response.body}');
+    throw Exception(
+        'Failed to generate response: ${response.statusCode} \n${response.body}');
   }
 }
